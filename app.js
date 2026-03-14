@@ -1,44 +1,19 @@
-// app.js - gestione login, dashboard, timbrature e GPS
+// app.js - versione senza login
 
-let currentUser = null;
-let users = [];
+let currentUser = 'admin'; // utente di default
 let timbrature = JSON.parse(localStorage.getItem('timbrature')) || {};
 
-async function loadUsers() {
-    const response = await fetch('data/users.json');
-    users = await response.json();
-}
+// Se non ci sono dati per l'utente, inizializza
+if(!timbrature[currentUser]) timbrature[currentUser] = [];
 
-function showDashboard() {
-    document.getElementById('login-section').style.display = 'none';
-    document.getElementById('dashboard').style.display = 'block';
-    document.getElementById('current-user').textContent = currentUser;
-    renderCalendar();
-    renderChart();
-    updateGPSInfo();
-}
+// Mostra direttamente dashboard
+document.getElementById('login-section').style.display = 'none';
+document.getElementById('dashboard').style.display = 'block';
+document.getElementById('current-user').textContent = currentUser;
 
-document.getElementById('login-form').addEventListener('submit', async e => {
-    e.preventDefault();
-    await loadUsers();
-    const username = document.getElementById('username').value;
-    const password = document.getElementById('password').value;
-
-    const user = users.find(u => u.username === username && u.password === password);
-    if(user){
-        currentUser = username;
-        if(!timbrature[currentUser]) timbrature[currentUser] = [];
-        showDashboard();
-    } else {
-        document.getElementById('login-error').textContent = 'Credenziali non valide';
-    }
-});
-
-document.getElementById('logout-btn').addEventListener('click', () => {
-    currentUser = null;
-    document.getElementById('dashboard').style.display = 'none';
-    document.getElementById('login-section').style.display = 'block';
-});
+renderCalendar();
+renderChart();
+updateGPSInfo();
 
 // Backup automatico
 document.getElementById('backup-btn').addEventListener('click', () => {
@@ -91,3 +66,8 @@ function addTimbratura(date, type) {
     localStorage.setItem('timbrature', JSON.stringify(timbrature));
     renderCalendar();
 }
+
+// Logout rimane solo per resettare l'utente (opzionale)
+document.getElementById('logout-btn').addEventListener('click', () => {
+    location.reload(); // ricarica la pagina
+});
