@@ -1,167 +1,93 @@
-mostra("dashboard")
+// app.js - gestione login, dashboard, timbrature e GPS
 
-function mostra(id){
+let currentUser = null;
+let users = [];
+let timbrature = JSON.parse(localStorage.getItem('timbrature')) || {};
 
-document.querySelectorAll("section")
-.forEach(s => s.style.display="none")
-
-document.getElementById(id).style.display="block"
-
+async function loadUsers() {
+    const response = await fetch('data/users.json');
+    users = await response.json();
 }
 
-function entrata(){
-
-let data=new Date().toLocaleDateString()
-let ora=new Date().toLocaleTimeString()
-
-let registro=JSON.parse(localStorage.getItem("registro"))||{}
-
-registro[data]=registro[data]||{}
-
-registro[data].entrata=ora
-
-salvaGPS(registro,data)
-
-localStorage.setItem("registro",JSON.stringify(registro))
-
-mostraRegistro()
-
+function showDashboard() {
+    document.getElementById('login-section').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+    document.getElementById('current-user').textContent = currentUser;
+    renderCalendar();
+    renderChart();
+    updateGPSInfo();
 }
 
-function uscita(){
+document.getElementById('login-form').addEventListener('submit', async e => {
+    e.preventDefault();
+    await loadUsers();
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
 
-let data=new Date().toLocaleDateString()
-let ora=new Date().toLocaleTimeString()
+    const user = users.find(u => u.username === username && u.password === password);
+    if(user){
+        currentUser = username;
+        if(!timbrature[currentUser]) timbrature[currentUser] = [];
+        showDashboard();
+    } else {
+        document.getElementById('login-error').textContent = 'Credenziali non valide';
+    }
+});
 
-let registro=JSON.parse(localStorage.getItem("registro"))||{}
+document.getElementById('logout-btn').addEventListener('click', () => {
+    currentUser = null;
+    document.getElementById('dashboard').style.display = 'none';
+    document.getElementById('login-section').style.display = 'block';
+});
 
-registro[data]=registro[data]||{}
+// Backup automatico
+document.getElementById('backup-btn').addEventListener('click', () => {
+    localStorage.setItem('timbrature', JSON.stringify(timbrature));
+    alert('Dati salvati localmente!');
+});
 
-registro[data].uscita=ora
+// Export PDF/Excel semplice
+document.getElementById('export-btn').addEventListener('click', () => {
+    const data = timbrature[currentUser] || [];
+    let csv = 'Data,Entrata,Uscita,Lat,Lon\n';
+    data.forEach(t => {
+        csv += `${t.date},${t.start || ''},${t.end || ''},${t.lat || ''},${t.lon || ''}\n`;
+    });
+    const blob = new Blob([csv], {type: 'text/csv'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'timbrature.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+});
 
-salvaGPS(registro,data)
-
-localStorage.setItem("registro",JSON.stringify(registro))
-
-mostraRegistro()
-
+// GPS timbratura
+function updateGPSInfo() {
+    const info = document.getElementById('gps-info');
+    info.textContent = 'Non ancora timbrato';
 }
 
-function salvaGPS(registro,data){
+function addTimbratura(date, type) {
+    if(!timbrature[currentUser]) timbrature[currentUser] = [];
+    let entry = timbrature[currentUser].find(t => t.date === date);
+    if(!entry){
+        entry = {date};
+        timbrature[currentUser].push(entry);
+    }
+    if(type === 'start') entry.start = new Date().toLocaleTimeString();
+    if(type === 'end') entry.end = new Date().toLocaleTimeString();
 
-navigator.geolocation.getCurrentPosition(pos=>{
+    // GPS
+    navigator.geolocation.getCurrentPosition(pos => {
+        entry.lat = pos.coords.latitude.toFixed(5);
+        entry.lon = pos.coords.longitude.toFixed(5);
+        document.getElementById('gps-info').textContent = `Ultima timbratura GPS: ${entry.lat}, ${entry.lon}`;
+        renderChart();
+    }, err => {
+        console.warn('GPS non disponibile');
+    });
 
-registro[data].gps=pos.coords.latitude+","+pos.coords.longitude
-
-})
-
+    localStorage.setItem('timbrature', JSON.stringify(timbrature));
+    renderCalendar();
 }
-
-function mostraRegistro(){
-
-let registro=JSON.parse(localStorage.getItem("registro"))||{}
-
-let html=""
-
-for(let data in registro){
-
-let entrata=registro[data].entrata||"-"
-let uscita=registro[data].uscita||"-"
-
-let ore="-"
-
-if(registro[data].entrata && registro[data].uscita){
-
-let e=new Date("1970-01-01 "+entrata)
-let u=new Date("1970-01-01 "+uscita)
-
-ore=((u-e)/1000/60/60).toFixed(2)
-
-}
-
-html+=`
-
-<tr>
-
-<td>${data}</td>
-<td>${entrata}</td>
-<td>${uscita}</td>
-<td>${ore}</td>
-
-</tr>
-
-`
-
-}
-
-document.getElementById("tabella").innerHTML=html
-
-}
-
-function backup(){
-
-let dati=localStorage.getItem("registro")
-
-let blob=new Blob([dati],{type:"application/json"})
-
-let url=URL.createObjectURL(blob)
-
-let a=document.createElement("a")
-
-a.href=url
-a.download="backup.json"
-a.click()
-
-}
-
-function exportExcel(){
-
-let registro=JSON.parse(localStorage.getItem("registro"))||{}
-
-let rows=[]
-
-for(let data in registro){
-
-rows.push({
-
-data:data,
-entrata:registro[data].entrata,
-uscita:registro[data].uscita
-
-})
-
-}
-
-let ws=XLSX.utils.json_to_sheet(rows)
-
-let wb=XLSX.utils.book_new()
-
-XLSX.utils.book_append_sheet(wb,ws,"Ore")
-
-XLSX.writeFile(wb,"timbrature.xlsx")
-
-}
-
-function login(){
-
-let user=document.getElementById("user").value
-let pass=document.getElementById("pass").value
-
-fetch("data/users.json")
-.then(r=>r.json())
-.then(users=>{
-
-let valido = users.find(u=>u.user===user && u.password===pass)
-
-if(valido){
-
-localStorage.setItem("utente",user)
-location.reload()
-
-}
-
-})
-
-}
-
-mostraRegistro()

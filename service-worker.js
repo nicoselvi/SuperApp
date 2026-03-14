@@ -1,32 +1,26 @@
-const cacheName="timbratore-v1"
+// service-worker.js - cache semplice
+const CACHE_NAME = 'superapp-cache-v1';
+const urlsToCache = [
+    '/',
+    '/index.html',
+    '/css/style.css',
+    '/js/app.js',
+    '/js/calendar.js',
+    '/js/charts.js'
+];
 
-const files=[
+self.addEventListener('install', e => {
+    e.waitUntil(
+        caches.open(CACHE_NAME).then(cache => {
+            return cache.addAll(urlsToCache);
+        })
+    );
+});
 
-"/",
-"/index.html",
-"/css/style.css",
-"/js/app.js"
-
-]
-
-self.addEventListener("install",e=>{
-
-e.waitUntil(
-
-caches.open(cacheName)
-.then(cache=>cache.addAll(files))
-
-)
-
-})
-
-self.addEventListener("fetch",e=>{
-
-e.respondWith(
-
-caches.match(e.request)
-.then(r=>r||fetch(e.request))
-
-)
-
-})
+self.addEventListener('fetch', e => {
+    e.respondWith(
+        caches.match(e.request).then(response => {
+            return response || fetch(e.request);
+        })
+    );
+});
