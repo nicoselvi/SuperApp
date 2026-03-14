@@ -142,4 +142,26 @@ XLSX.writeFile(wb,"timbrature.xlsx")
 
 }
 
+function login(){
+
+let user=document.getElementById("user").value
+let pass=document.getElementById("pass").value
+
+fetch("data/users.json")
+.then(r=>r.json())
+.then(users=>{
+
+let valido = users.find(u=>u.user===user && u.password===pass)
+
+if(valido){
+
+localStorage.setItem("utente",user)
+location.reload()
+
+}
+
+})
+
+}
+
 mostraRegistro()
