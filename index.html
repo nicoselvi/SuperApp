@@ -9,7 +9,7 @@
 
 body {
     font-family: 'Orbitron', sans-serif;
-    background: radial-gradient(circle at top left, #0f0c29, #302b63, #24243e);
+    background-color: #000000; /* Sfondo nero */
     color: #00fff7;
     padding: 2rem;
     text-align: center;
@@ -19,7 +19,7 @@ header h1 {
     font-size: 2.5rem;
     margin-bottom: 2rem;
     color: #00fff7;
-    text-shadow: 0 0 10px #00fff7, 0 0 20px #00fff7, 0 0 30px #00fff7;
+    text-shadow: 0 0 5px #00fff7, 0 0 10px #00fff7; /* glow ridotto */
 }
 
 button {
@@ -33,13 +33,13 @@ button {
     color: #00fff7;
     transition: all 0.3s ease;
     text-transform: uppercase;
-    box-shadow: 0 0 20px rgba(0,255,247,0.5);
+    box-shadow: 0 0 10px rgba(0,255,247,0.5);
 }
 
 button:hover {
     background: #00fff7;
-    color: #0f0c29;
-    box-shadow: 0 0 40px #00fff7, 0 0 80px #00fff7;
+    color: #000000;
+    box-shadow: 0 0 20px #00fff7, 0 0 40px #00fff7;
     transform: scale(1.1);
 }
 
@@ -54,7 +54,7 @@ button:hover {
     text-align: left;
     font-size: 1.2rem;
     line-height: 2rem;
-    box-shadow: 0 0 20px rgba(0,255,247,0.3);
+    box-shadow: 0 0 10px rgba(0,255,247,0.3);
 }
 </style>
 </head>
@@ -89,20 +89,22 @@ function updateLog(){
     logDiv.innerHTML = html;
 }
 
-// Funzione timbrazione automatica
+// Funzione timbrazione con logica chiara
 function timbra(type){
     const today = new Date().toLocaleDateString();
     if(!timbrature[today]) timbrature[today] = {};
     const now = new Date().toLocaleTimeString();
 
-    // Logica automatica Mattina/Pomeriggio
-    if(type === 'start') {
+    if(type==='start') {
         if(!timbrature[today].startMorning) timbrature[today].startMorning = now;
         else if(!timbrature[today].startAfternoon) timbrature[today].startAfternoon = now;
-    } 
-    if(type === 'end') {
-        if(!timbrature[today].endMorning) timbrature[today].endMorning = now;
-        else if(!timbrature[today].endAfternoon) timbrature[today].endAfternoon = now;
+        else alert("Hai già timbrato entrambe le entrate!");
+    }
+
+    if(type==='end') {
+        if(!timbrature[today].endMorning && timbrature[today].startMorning) timbrature[today].endMorning = now;
+        else if(!timbrature[today].endAfternoon && timbrature[today].startAfternoon) timbrature[today].endAfternoon = now;
+        else alert("Non puoi timbrare uscita senza entrata o già timbrato");
     }
 
     localStorage.setItem('timbrature', JSON.stringify(timbrature));
