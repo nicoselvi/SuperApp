@@ -1,19 +1,22 @@
-// app.js - versione senza login
-
-let currentUser = 'admin'; // utente di default
+// app.js - versione avanzata timbratore
+let currentUser = 'admin';
 let timbrature = JSON.parse(localStorage.getItem('timbrature')) || {};
-
-// Se non ci sono dati per l'utente, inizializza
 if(!timbrature[currentUser]) timbrature[currentUser] = [];
 
-// Mostra direttamente dashboard
-document.getElementById('login-section').style.display = 'none';
 document.getElementById('dashboard').style.display = 'block';
-document.getElementById('current-user').textContent = currentUser;
-
 renderCalendar();
 renderChart();
 updateGPSInfo();
+
+// TIMBRA ENTRATA
+document.getElementById('start-btn').addEventListener('click', () => {
+    addTimbratura(new Date().toISOString().split('T')[0], 'start');
+});
+
+// TIMBRA USCITA
+document.getElementById('end-btn').addEventListener('click', () => {
+    addTimbratura(new Date().toISOString().split('T')[0], 'end');
+});
 
 // Backup automatico
 document.getElementById('backup-btn').addEventListener('click', () => {
@@ -21,9 +24,11 @@ document.getElementById('backup-btn').addEventListener('click', () => {
     alert('Dati salvati localmente!');
 });
 
-// Export PDF/Excel semplice
-document.getElementById('export-btn').addEventListener('click', () => {
+// Export CSV + PDF con grafico incluso
+document.getElementById('export-btn').addEventListener('click', async () => {
     const data = timbrature[currentUser] || [];
+
+    // --- CSV come prima ---
     let csv = 'Data,Entrata,Uscita,Lat,Lon\n';
     data.forEach(t => {
         csv += `${t.date},${t.start || ''},${t.end || ''},${t.lat || ''},${t.lon || ''}\n`;
@@ -35,12 +40,41 @@ document.getElementById('export-btn').addEventListener('click', () => {
     a.download = 'timbrature.csv';
     a.click();
     URL.revokeObjectURL(url);
+
+    // --- PDF con grafico ---
+    const { jsPDF } = window.jspdf;
+
+    const pdf = new jsPDF('p', 'mm', 'a4');
+
+    // Titolo
+    pdf.setFontSize(18);
+    pdf.text(`Timbrature utente: ${currentUser}`, 14, 20);
+
+    // Tabella timbrature
+    pdf.setFontSize(12);
+    let startY = 30;
+    pdf.text('Data | Entrata | Uscita | Lat | Lon', 14, startY);
+    startY += 7;
+    data.forEach(t => {
+        pdf.text(`${t.date} | ${t.start || ''} | ${t.end || ''} | ${t.lat || ''} | ${t.lon || ''}`, 14, startY);
+        startY += 7;
+    });
+
+    // Cattura grafico con html2canvas
+    const canvas = await html2canvas(document.getElementById('hoursChart'));
+    const imgData = canvas.toDataURL('image/png');
+    pdf.addPage();
+    pdf.setFontSize(16);
+    pdf.text('Grafico Ore Lavorate', 14, 20);
+    pdf.addImage(imgData, 'PNG', 15, 30, 180, 100);
+
+    pdf.save(`timbrature_${currentUser}.pdf`);
 });
 
-// GPS timbratura
+// GPS e timbratura
 function updateGPSInfo() {
     const info = document.getElementById('gps-info');
-    info.textContent = 'Non ancora timbrato';
+    info.textContent = 'GPS non ancora acquisito';
 }
 
 function addTimbratura(date, type) {
@@ -50,24 +84,24 @@ function addTimbratura(date, type) {
         entry = {date};
         timbrature[currentUser].push(entry);
     }
-    if(type === 'start') entry.start = new Date().toLocaleTimeString();
-    if(type === 'end') entry.end = new Date().toLocaleTimeString();
+    const now = new Date().toLocaleTimeString();
+    if(type==='start') entry.start = now;
+    if(type==='end') entry.end = now;
 
-    // GPS
-    navigator.geolocation.getCurrentPosition(pos => {
+    navigator.geolocation.getCurrentPosition(pos=>{
         entry.lat = pos.coords.latitude.toFixed(5);
         entry.lon = pos.coords.longitude.toFixed(5);
         document.getElementById('gps-info').textContent = `Ultima timbratura GPS: ${entry.lat}, ${entry.lon}`;
         renderChart();
-    }, err => {
-        console.warn('GPS non disponibile');
+    }, err=>{
+        alert('GPS non disponibile, la timbratura non sarà completa');
     });
 
     localStorage.setItem('timbrature', JSON.stringify(timbrature));
     renderCalendar();
 }
 
-// Logout rimane solo per resettare l'utente (opzionale)
-document.getElementById('logout-btn').addEventListener('click', () => {
-    location.reload(); // ricarica la pagina
+// Logout semplice
+document.getElementById('logout-btn').addEventListener('click', ()=>{
+    location.reload();
 });

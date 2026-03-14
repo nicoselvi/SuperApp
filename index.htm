@@ -3,17 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>SuperApp Timbratore</title>
-
 <link rel="stylesheet" href="css/style.css">
 <link rel="manifest" href="manifest.json">
-
-<!-- libreria grafici -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 </head>
-
 <body>
 
 <header>
@@ -22,7 +18,7 @@
 
 <section id="dashboard">
 
-<h2>Utente: <span id="current-user"></span></h2>
+<h2>Utente: <span id="current-user">admin</span></h2>
 
 <div class="features">
 
@@ -37,18 +33,20 @@
 </div>
 
 <div class="feature">
+<h3>🟢 TIMBRA ENTRATA / 🔴 TIMBRA USCITA</h3>
+<button id="start-btn">Entra</button>
+<button id="end-btn">Esci</button>
+<p id="gps-info">GPS non ancora acquisito</p>
+</div>
+
+<div class="feature">
 <h3>☁️ Backup Automatico</h3>
-<button id="backup-btn">Salva dati</button>
+<button id="backup-btn">Salva Dati Localmente</button>
 </div>
 
 <div class="feature">
-<h3>📄 Export Excel</h3>
-<button id="export-btn">Scarica CSV</button>
-</div>
-
-<div class="feature">
-<h3>📍 GPS Timbratura</h3>
-<p id="gps-info">Nessuna timbratura</p>
+<h3>📄 Export CSV / PDF</h3>
+<button id="export-btn">Esporta CSV</button>
 </div>
 
 </div>
@@ -60,6 +58,5 @@
 <script src="js/calendar.js"></script>
 <script src="js/charts.js"></script>
 <script src="js/app.js"></script>
-
 </body>
 </html>
