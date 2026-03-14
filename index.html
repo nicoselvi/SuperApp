@@ -4,6 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Super Timbratore Futuristico</title>
+
+<!-- Manifest PWA -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#000000">
+
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
 
@@ -72,12 +77,18 @@ button:hover {
 <div id="log">Nessuna timbratura effettuata</div>
 
 <script>
-const logDiv = document.getElementById('log');
+// Service Worker PWA
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/service-worker.js')
+    .then(() => console.log('Service Worker registrato'))
+    .catch(err => console.log('Service Worker fallito', err));
+}
 
-// Recupera dati dal localStorage o inizializza
+// Log e timbrature
+const logDiv = document.getElementById('log');
 let timbrature = JSON.parse(localStorage.getItem('timbrature')) || {};
 
-// Funzione per aggiornare il log
+// Aggiorna log
 function updateLog(){
     const today = new Date().toLocaleDateString();
     const t = timbrature[today] || {};
@@ -89,7 +100,7 @@ function updateLog(){
     logDiv.innerHTML = html;
 }
 
-// Funzione timbrazione con logica chiara
+// Logica timbrature
 function timbra(type){
     const today = new Date().toLocaleDateString();
     if(!timbrature[today]) timbrature[today] = {};
@@ -99,8 +110,7 @@ function timbra(type){
         if(!timbrature[today].startMorning) timbrature[today].startMorning = now;
         else if(!timbrature[today].startAfternoon) timbrature[today].startAfternoon = now;
         else alert("Hai già timbrato entrambe le entrate!");
-    }
-
+    } 
     if(type==='end') {
         if(!timbrature[today].endMorning && timbrature[today].startMorning) timbrature[today].endMorning = now;
         else if(!timbrature[today].endAfternoon && timbrature[today].startAfternoon) timbrature[today].endAfternoon = now;
@@ -115,7 +125,6 @@ function timbra(type){
 document.getElementById('start-btn').addEventListener('click', ()=> timbra('start'));
 document.getElementById('end-btn').addEventListener('click', ()=> timbra('end'));
 
-// Mostra subito il log
 updateLog();
 </script>
 
