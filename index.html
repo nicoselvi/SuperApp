@@ -5,53 +5,56 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Super Timbratore Futuristico</title>
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+
 body {
-    font-family: 'Segoe UI', sans-serif;
-    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-    color: #fff;
+    font-family: 'Orbitron', sans-serif;
+    background: radial-gradient(circle at top left, #0f0c29, #302b63, #24243e);
+    color: #00fff7;
     padding: 2rem;
     text-align: center;
 }
 
 header h1 {
-    font-size: 2.2rem;
+    font-size: 2.5rem;
     margin-bottom: 2rem;
-    text-shadow: 2px 2px 5px #000;
+    color: #00fff7;
+    text-shadow: 0 0 10px #00fff7, 0 0 20px #00fff7, 0 0 30px #00fff7;
 }
 
 button {
-    font-size: 1.2rem;
-    padding: 0.6rem 2rem;
-    margin: 0.5rem;
+    font-size: 1.4rem;
+    padding: 1rem 3rem;
+    margin: 1rem;
     cursor: pointer;
-    border: none;
-    border-radius: 10px;
-    transition: 0.3s;
-    color: #fff;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    border: 2px solid #00fff7;
+    border-radius: 15px;
+    background: transparent;
+    color: #00fff7;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    box-shadow: 0 0 20px rgba(0,255,247,0.5);
 }
 
-#start-morning { background: #00ff85; }
-#end-morning { background: #ff4c4c; }
-#start-afternoon { background: #00c3ff; }
-#end-afternoon { background: #ffdb00; }
-
 button:hover {
+    background: #00fff7;
+    color: #0f0c29;
+    box-shadow: 0 0 40px #00fff7, 0 0 80px #00fff7;
     transform: scale(1.1);
-    box-shadow: 0 6px 20px rgba(0,0,0,0.5);
 }
 
 #log {
-    margin-top: 2rem;
-    background: rgba(255,255,255,0.1);
-    padding: 1.5rem;
-    border-radius: 15px;
-    max-width: 400px;
+    margin-top: 3rem;
+    background: rgba(0,255,247,0.05);
+    padding: 2rem;
+    border-radius: 20px;
+    max-width: 450px;
     margin-left: auto;
     margin-right: auto;
     text-align: left;
-    font-size: 1.1rem;
-    line-height: 1.6rem;
+    font-size: 1.2rem;
+    line-height: 2rem;
+    box-shadow: 0 0 20px rgba(0,255,247,0.3);
 }
 </style>
 </head>
@@ -62,10 +65,8 @@ button:hover {
 </header>
 
 <div>
-    <button id="start-morning">Entrata Mattina</button>
-    <button id="end-morning">Uscita Mattina</button>
-    <button id="start-afternoon">Entrata Pomeriggio</button>
-    <button id="end-afternoon">Uscita Pomeriggio</button>
+    <button id="start-btn">Entrata</button>
+    <button id="end-btn">Uscita</button>
 </div>
 
 <div id="log">Nessuna timbratura effettuata</div>
@@ -76,6 +77,7 @@ const logDiv = document.getElementById('log');
 // Recupera dati dal localStorage o inizializza
 let timbrature = JSON.parse(localStorage.getItem('timbrature')) || {};
 
+// Funzione per aggiornare il log
 function updateLog(){
     const today = new Date().toLocaleDateString();
     const t = timbrature[today] || {};
@@ -87,26 +89,31 @@ function updateLog(){
     logDiv.innerHTML = html;
 }
 
+// Funzione timbrazione automatica
 function timbra(type){
     const today = new Date().toLocaleDateString();
     if(!timbrature[today]) timbrature[today] = {};
     const now = new Date().toLocaleTimeString();
-    if(type==='startMorning') timbrature[today].startMorning = now;
-    if(type==='endMorning') timbrature[today].endMorning = now;
-    if(type==='startAfternoon') timbrature[today].startAfternoon = now;
-    if(type==='endAfternoon') timbrature[today].endAfternoon = now;
+
+    // Logica automatica Mattina/Pomeriggio
+    if(type === 'start') {
+        if(!timbrature[today].startMorning) timbrature[today].startMorning = now;
+        else if(!timbrature[today].startAfternoon) timbrature[today].startAfternoon = now;
+    } 
+    if(type === 'end') {
+        if(!timbrature[today].endMorning) timbrature[today].endMorning = now;
+        else if(!timbrature[today].endAfternoon) timbrature[today].endAfternoon = now;
+    }
 
     localStorage.setItem('timbrature', JSON.stringify(timbrature));
     updateLog();
 }
 
 // Eventi pulsanti
-document.getElementById('start-morning').addEventListener('click', ()=> timbra('startMorning'));
-document.getElementById('end-morning').addEventListener('click', ()=> timbra('endMorning'));
-document.getElementById('start-afternoon').addEventListener('click', ()=> timbra('startAfternoon'));
-document.getElementById('end-afternoon').addEventListener('click', ()=> timbra('endAfternoon'));
+document.getElementById('start-btn').addEventListener('click', ()=> timbra('start'));
+document.getElementById('end-btn').addEventListener('click', ()=> timbra('end'));
 
-// Mostra subito
+// Mostra subito il log
 updateLog();
 </script>
 
