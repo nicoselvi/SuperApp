@@ -1,0 +1,32 @@
+body {
+    font-family: Arial, sans-serif;
+    background: #f4f4f4;
+    padding: 2rem;
+    text-align: center;
+}
+
+header h1 {
+    color: #007bff;
+}
+
+button {
+    font-size: 1.1rem;
+    padding: 0.5rem 1.5rem;
+    margin: 0.5rem;
+    cursor: pointer;
+    border: none;
+    border-radius: 5px;
+    color: #fff;
+}
+
+#start-btn { background-color: #28a745; }
+#end-btn { background-color: #dc3545; }
+#backup-btn { background-color: #17a2b8; }
+
+#log {
+    margin-top: 1rem;
+    font-size: 1.2rem;
+    background: #fff;
+    padding: 1rem;
+    border-radius: 8px;
+}

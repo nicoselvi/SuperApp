@@ -7,8 +7,6 @@
 <link rel="stylesheet" href="css/style.css">
 <link rel="manifest" href="manifest.json">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 </head>
 <body>
 
@@ -17,41 +15,31 @@
 </header>
 
 <section id="dashboard">
-
 <h2>Utente: <span id="current-user">admin</span></h2>
 
 <div class="features">
+    <div class="feature">
+        <h3>🟢 TIMBRA ENTRATA / 🔴 TIMBRA USCITA</h3>
+        <button id="start-btn">Entra</button>
+        <button id="end-btn">Esci</button>
+        <p id="log">Nessuna timbratura effettuata</p>
+    </div>
 
-<div class="feature">
-<h3>📅 Calendario Mensile</h3>
-<div id="calendar"></div>
+    <div class="feature">
+        <h3>📊 Grafico Ore Lavorate</h3>
+        <canvas id="hoursChart"></canvas>
+    </div>
+
+    <div class="feature">
+        <h3>📅 Calendario Mensile</h3>
+        <div id="calendar"></div>
+    </div>
+
+    <div class="feature">
+        <h3>☁️ Backup Automatico</h3>
+        <button id="backup-btn">Salva Dati Localmente</button>
+    </div>
 </div>
-
-<div class="feature">
-<h3>📊 Grafico Ore Lavorate</h3>
-<canvas id="hoursChart"></canvas>
-</div>
-
-<div class="feature">
-<h3>🟢 TIMBRA ENTRATA / 🔴 TIMBRA USCITA</h3>
-<button id="start-btn">Entra</button>
-<button id="end-btn">Esci</button>
-<p id="gps-info">GPS non ancora acquisito</p>
-</div>
-
-<div class="feature">
-<h3>☁️ Backup Automatico</h3>
-<button id="backup-btn">Salva Dati Localmente</button>
-</div>
-
-<div class="feature">
-<h3>📄 Export CSV / PDF</h3>
-<button id="export-btn">Esporta CSV</button>
-</div>
-
-</div>
-
-<button id="logout-btn">Ricarica App</button>
 
 </section>
 
