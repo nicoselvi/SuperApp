@@ -3,48 +3,112 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SuperApp Timbratore</title>
-<link rel="stylesheet" href="css/style.css">
-<link rel="manifest" href="manifest.json">
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<title>Super Timbratore Futuristico</title>
+<style>
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    color: #fff;
+    padding: 2rem;
+    text-align: center;
+}
+
+header h1 {
+    font-size: 2.2rem;
+    margin-bottom: 2rem;
+    text-shadow: 2px 2px 5px #000;
+}
+
+button {
+    font-size: 1.2rem;
+    padding: 0.6rem 2rem;
+    margin: 0.5rem;
+    cursor: pointer;
+    border: none;
+    border-radius: 10px;
+    transition: 0.3s;
+    color: #fff;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+
+#start-morning { background: #00ff85; }
+#end-morning { background: #ff4c4c; }
+#start-afternoon { background: #00c3ff; }
+#end-afternoon { background: #ffdb00; }
+
+button:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.5);
+}
+
+#log {
+    margin-top: 2rem;
+    background: rgba(255,255,255,0.1);
+    padding: 1.5rem;
+    border-radius: 15px;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: left;
+    font-size: 1.1rem;
+    line-height: 1.6rem;
+}
+</style>
 </head>
 <body>
 
 <header>
-<h1>SuperApp ⏱️ Timbratore</h1>
+<h1>Super Timbratore Futuristico</h1>
 </header>
 
-<section id="dashboard">
-<h2>Utente: <span id="current-user">admin</span></h2>
-
-<div class="features">
-    <div class="feature">
-        <h3>🟢 TIMBRA ENTRATA / 🔴 TIMBRA USCITA</h3>
-        <button id="start-btn">Entra</button>
-        <button id="end-btn">Esci</button>
-        <p id="log">Nessuna timbratura effettuata</p>
-    </div>
-
-    <div class="feature">
-        <h3>📊 Grafico Ore Lavorate</h3>
-        <canvas id="hoursChart"></canvas>
-    </div>
-
-    <div class="feature">
-        <h3>📅 Calendario Mensile</h3>
-        <div id="calendar"></div>
-    </div>
-
-    <div class="feature">
-        <h3>☁️ Backup Automatico</h3>
-        <button id="backup-btn">Salva Dati Localmente</button>
-    </div>
+<div>
+    <button id="start-morning">Entrata Mattina</button>
+    <button id="end-morning">Uscita Mattina</button>
+    <button id="start-afternoon">Entrata Pomeriggio</button>
+    <button id="end-afternoon">Uscita Pomeriggio</button>
 </div>
 
-</section>
+<div id="log">Nessuna timbratura effettuata</div>
 
-<script src="js/calendar.js"></script>
-<script src="js/charts.js"></script>
-<script src="js/app.js"></script>
+<script>
+const logDiv = document.getElementById('log');
+
+// Recupera dati dal localStorage o inizializza
+let timbrature = JSON.parse(localStorage.getItem('timbrature')) || {};
+
+function updateLog(){
+    const today = new Date().toLocaleDateString();
+    const t = timbrature[today] || {};
+    let html = `GIORNO: ${today}<br>`;
+    html += `ENTRATA MATTINA: ${t.startMorning || '-'}<br>`;
+    html += `USCITA MATTINA: ${t.endMorning || '-'}<br>`;
+    html += `ENTRATA POMERIGGIO: ${t.startAfternoon || '-'}<br>`;
+    html += `USCITA POMERIGGIO: ${t.endAfternoon || '-'}<br>`;
+    logDiv.innerHTML = html;
+}
+
+function timbra(type){
+    const today = new Date().toLocaleDateString();
+    if(!timbrature[today]) timbrature[today] = {};
+    const now = new Date().toLocaleTimeString();
+    if(type==='startMorning') timbrature[today].startMorning = now;
+    if(type==='endMorning') timbrature[today].endMorning = now;
+    if(type==='startAfternoon') timbrature[today].startAfternoon = now;
+    if(type==='endAfternoon') timbrature[today].endAfternoon = now;
+
+    localStorage.setItem('timbrature', JSON.stringify(timbrature));
+    updateLog();
+}
+
+// Eventi pulsanti
+document.getElementById('start-morning').addEventListener('click', ()=> timbra('startMorning'));
+document.getElementById('end-morning').addEventListener('click', ()=> timbra('endMorning'));
+document.getElementById('start-afternoon').addEventListener('click', ()=> timbra('startAfternoon'));
+document.getElementById('end-afternoon').addEventListener('click', ()=> timbra('endAfternoon'));
+
+// Mostra subito
+updateLog();
+</script>
+
 </body>
 </html>
