@@ -1,22 +1,32 @@
-const CACHE_NAME = "superapp-cache";
+const cacheName="timbratore-v1"
 
-const urlsToCache = [
+const files=[
+
 "/",
 "/index.html",
-"/style.css",
-"/app.js"
-];
+"/css/style.css",
+"/js/app.js"
 
-self.addEventListener("install", event => {
-event.waitUntil(
-caches.open(CACHE_NAME)
-.then(cache => cache.addAll(urlsToCache))
-);
-});
+]
 
-self.addEventListener("fetch", event => {
-event.respondWith(
-caches.match(event.request)
-.then(response => response || fetch(event.request))
-);
-});
+self.addEventListener("install",e=>{
+
+e.waitUntil(
+
+caches.open(cacheName)
+.then(cache=>cache.addAll(files))
+
+)
+
+})
+
+self.addEventListener("fetch",e=>{
+
+e.respondWith(
+
+caches.match(e.request)
+.then(r=>r||fetch(e.request))
+
+)
+
+})

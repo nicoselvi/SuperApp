@@ -1,48 +1,144 @@
-function timbraturaEntrata() {
+mostra("dashboard")
 
-let ora = new Date().toLocaleString()
+function mostra(id){
 
-let registro = JSON.parse(localStorage.getItem("registro")) || []
+document.querySelectorAll("section")
+.forEach(s => s.style.display="none")
 
-registro.push("Entrata: " + ora)
+document.getElementById(id).style.display="block"
 
-localStorage.setItem("registro", JSON.stringify(registro))
+}
+
+function entrata(){
+
+let data=new Date().toLocaleDateString()
+let ora=new Date().toLocaleTimeString()
+
+let registro=JSON.parse(localStorage.getItem("registro"))||{}
+
+registro[data]=registro[data]||{}
+
+registro[data].entrata=ora
+
+salvaGPS(registro,data)
+
+localStorage.setItem("registro",JSON.stringify(registro))
 
 mostraRegistro()
 
 }
 
-function timbraturaUscita() {
+function uscita(){
 
-let ora = new Date().toLocaleString()
+let data=new Date().toLocaleDateString()
+let ora=new Date().toLocaleTimeString()
 
-let registro = JSON.parse(localStorage.getItem("registro")) || []
+let registro=JSON.parse(localStorage.getItem("registro"))||{}
 
-registro.push("Uscita: " + ora)
+registro[data]=registro[data]||{}
 
-localStorage.setItem("registro", JSON.stringify(registro))
+registro[data].uscita=ora
+
+salvaGPS(registro,data)
+
+localStorage.setItem("registro",JSON.stringify(registro))
 
 mostraRegistro()
+
+}
+
+function salvaGPS(registro,data){
+
+navigator.geolocation.getCurrentPosition(pos=>{
+
+registro[data].gps=pos.coords.latitude+","+pos.coords.longitude
+
+})
 
 }
 
 function mostraRegistro(){
 
-let registro = JSON.parse(localStorage.getItem("registro")) || []
+let registro=JSON.parse(localStorage.getItem("registro"))||{}
 
-let lista = document.getElementById("registro")
+let html=""
 
-lista.innerHTML = ""
+for(let data in registro){
 
-registro.forEach(r => {
+let entrata=registro[data].entrata||"-"
+let uscita=registro[data].uscita||"-"
 
-let li = document.createElement("li")
+let ore="-"
 
-li.textContent = r
+if(registro[data].entrata && registro[data].uscita){
 
-lista.appendChild(li)
+let e=new Date("1970-01-01 "+entrata)
+let u=new Date("1970-01-01 "+uscita)
+
+ore=((u-e)/1000/60/60).toFixed(2)
+
+}
+
+html+=`
+
+<tr>
+
+<td>${data}</td>
+<td>${entrata}</td>
+<td>${uscita}</td>
+<td>${ore}</td>
+
+</tr>
+
+`
+
+}
+
+document.getElementById("tabella").innerHTML=html
+
+}
+
+function backup(){
+
+let dati=localStorage.getItem("registro")
+
+let blob=new Blob([dati],{type:"application/json"})
+
+let url=URL.createObjectURL(blob)
+
+let a=document.createElement("a")
+
+a.href=url
+a.download="backup.json"
+a.click()
+
+}
+
+function exportExcel(){
+
+let registro=JSON.parse(localStorage.getItem("registro"))||{}
+
+let rows=[]
+
+for(let data in registro){
+
+rows.push({
+
+data:data,
+entrata:registro[data].entrata,
+uscita:registro[data].uscita
 
 })
+
+}
+
+let ws=XLSX.utils.json_to_sheet(rows)
+
+let wb=XLSX.utils.book_new()
+
+XLSX.utils.book_append_sheet(wb,ws,"Ore")
+
+XLSX.writeFile(wb,"timbrature.xlsx")
 
 }
 

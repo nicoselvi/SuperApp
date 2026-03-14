@@ -1,27 +1,107 @@
 <!DOCTYPE html>
 <html lang="it">
+
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Timbratore</title>
+<title>Timbratore Pro</title>
 
-<link rel="stylesheet" href="style.css">
+<link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="css/style.css">
+
+<meta name="theme-color" content="#0f172a">
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 
 </head>
 
 <body>
 
-<h1>🕒 Timbratore Ore</h1>
+<header>
 
-<button onclick="timbraturaEntrata()">Entrata</button>
-<button onclick="timbraturaUscita()">Uscita</button>
+<h1>🕒 Timbratore Pro</h1>
 
-<h2>Registro</h2>
+<nav>
 
-<ul id="registro"></ul>
+<button onclick="mostra('dashboard')">Dashboard</button>
+<button onclick="mostra('registro')">Registro</button>
+<button onclick="mostra('calendario')">Calendario</button>
+<button onclick="mostra('grafici')">Grafici</button>
 
-<script src="app.js"></script>
+</nav>
+
+</header>
+
+<section id="dashboard">
+
+<h2>Dashboard</h2>
+
+<button onclick="entrata()">Entrata</button>
+<button onclick="uscita()">Uscita</button>
+
+<button onclick="backup()">Backup</button>
+<button onclick="exportExcel()">Export Excel</button>
+
+</section>
+
+<section id="registro">
+
+<h2>Registro Ore</h2>
+
+<table>
+
+<thead>
+
+<tr>
+<th>Data</th>
+<th>Entrata</th>
+<th>Uscita</th>
+<th>Ore</th>
+</tr>
+
+</thead>
+
+<tbody id="tabella">
+
+</tbody>
+
+</table>
+
+</section>
+
+<section id="calendario">
+
+<h2>Calendario</h2>
+
+<div id="calendar"></div>
+
+</section>
+
+<section id="grafici">
+
+<h2>Grafico Ore</h2>
+
+<canvas id="grafico"></canvas>
+
+</section>
+
+<script src="js/app.js"></script>
+<script src="js/charts.js"></script>
+<script src="js/calendar.js"></script>
+
+<script>
+
+if ('serviceWorker' in navigator) {
+
+navigator.serviceWorker.register('service-worker.js')
+
+}
+
+</script>
 
 </body>
+
 </html>
